@@ -5,15 +5,27 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.patternpat.R;
+import com.example.patternpat.model.DogBreed;
+import com.example.patternpat.viewmodel.ListViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,9 +33,22 @@ import butterknife.ButterKnife;
 
 public class ListFragment extends Fragment {
 
+    private ListViewModel viewModel;
+    private DogsListAdapter dogsListAdapter = new DogsListAdapter(new ArrayList<>());
+
     //Use Butter knife to bind
-   /* @BindView(R.id.go_to_details_btn)
-    FloatingActionButton fab;*/
+
+    @BindView(R.id.dogs_list)
+    RecyclerView dogListRecyclerView;
+
+    @BindView(R.id.list_error)
+    TextView listError;
+
+    @BindView(R.id.loading_view)
+    ProgressBar loadingView;
+
+    @BindView(R.id.refresh_layout)
+    SwipeRefreshLayout refreshLayout;
 
 
     public ListFragment() {
@@ -34,15 +59,46 @@ public class ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-      View view = inflater.inflate(R.layout.fragment_list, container, false);
-        ButterKnife.bind(this,view);
-      return view;
+        View view = inflater.inflate(R.layout.fragment_list, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        viewModel = ViewModelProviders.of(this).get(ListViewModel.class);
+        viewModel.refresh();
 
+        dogListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        dogListRecyclerView.setAdapter(dogsListAdapter);
+
+        observeViewModel();
+    }
+
+    private void observeViewModel() {
+        viewModel.dogs.observe(getViewLifecycleOwner(), dogs -> {
+            if (dogs != null && dogs instanceof List) {
+                dogListRecyclerView.setVisibility(View.VISIBLE);
+                dogsListAdapter.updateDogsList(dogs);
+            }
+        });
+
+        viewModel.dogLoadError.observe(getViewLifecycleOwner(), isError -> {
+            if (isError != null && isError instanceof Boolean) {
+                listError.setVisibility(isError ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        viewModel.loading.observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading != null && isLoading instanceof Boolean) {
+                loadingView.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+                if (isLoading) {
+                    listError.setVisibility(View.GONE);
+                    dogListRecyclerView.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
 
