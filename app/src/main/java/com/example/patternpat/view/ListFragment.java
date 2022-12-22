@@ -67,6 +67,11 @@ public class ListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Navigate to detail fragment directly
+       /* ListFragmentDirections.ActionDetail actionDetail = ListFragmentDirections.actionDetail();
+        Navigation.findNavController(view).navigate(actionDetail);*/
+
         viewModel = ViewModelProviders.of(this).get(ListViewModel.class);
         viewModel.refresh();
 

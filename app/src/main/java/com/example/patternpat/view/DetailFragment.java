@@ -5,15 +5,20 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.patternpat.R;
+import com.example.patternpat.model.DogBreed;
+import com.example.patternpat.viewmodel.DetailViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import butterknife.BindView;
@@ -21,13 +26,25 @@ import butterknife.ButterKnife;
 
 public class DetailFragment extends Fragment {
 
-   /* @BindView(R.id.go_to_list_detail_btn)
-    FloatingActionButton floatingActionButton;
-
-    @BindView(R.id.detail_textVw)
-    TextView textView;*/
 
     private int dogUid;
+    private DetailViewModel detailViewModel;
+
+
+    @BindView(R.id.dog_image)
+    ImageView dogImage;
+
+    @BindView(R.id.dog_name)
+    TextView dogName;
+
+    @BindView(R.id.dog_purpose)
+    TextView dogPurpose;
+
+    @BindView(R.id.dog_temperament)
+    TextView dogTemperament;
+
+    @BindView(R.id.dog_lifespan)
+    TextView dogLifeSpan;
 
     public DetailFragment() {
         // Required empty public constructor
@@ -52,5 +69,19 @@ public class DetailFragment extends Fragment {
 
         }
 
+        detailViewModel = ViewModelProviders.of(this).get(DetailViewModel.class);
+        detailViewModel.fetch();
+        observeViewModel();
+    }
+
+    private void observeViewModel() {
+        detailViewModel.dogBreedMutableLiveData.observe(getViewLifecycleOwner(), dogBreed -> {
+            if (dogBreed != null && dogBreed instanceof DogBreed) {
+                dogName.setText(dogBreed.dogBreed);
+                dogPurpose.setText(dogBreed.bredFor);
+                dogTemperament.setText(dogBreed.temperament);
+                dogLifeSpan.setText(dogBreed.lifeSpan);
+            }
+        });
     }
 }
