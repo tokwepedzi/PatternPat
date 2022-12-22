@@ -54,23 +54,29 @@ public class ListViewModel extends AndroidViewModel {
     }
 
     private void fetchFromRemote() {
+        loading.setValue(true);
         compositeDisposable.add(
-        dogsApiService.getDogs()
-                //call the information on new background thread
-                .subscribeOn(Schedulers.newThread())
-                //observe the results on the main thread
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableSingleObserver<List<DogBreed>>() {
-                    @Override
-                    public void onSuccess(List<DogBreed> dogBreeds) {
+                dogsApiService.getDogs()
+                        //call the information on new background thread
+                        .subscribeOn(Schedulers.newThread())
+                        //observe the results on the main thread
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableSingleObserver<List<DogBreed>>() {
+                            @Override
+                            public void onSuccess(List<DogBreed> dogBreeds) {
+                                dogs.setValue(dogBreeds);
+                                dogLoadError.setValue(false);
+                                loading.setValue(false);
+                            }
 
-                    }
+                            @Override
+                            public void onError(Throwable e) {
+                                dogLoadError.setValue(true);
+                                loading.setValue(false);
+                                e.printStackTrace();
 
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-                })
+                            }
+                        })
         );
     }
 

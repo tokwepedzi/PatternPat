@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.patternpat.R;
 import com.example.patternpat.model.DogBreed;
+import com.example.patternpat.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +41,14 @@ public class DogsListAdapter extends RecyclerView.Adapter<DogsListAdapter.DogVie
     @Override
     public void onBindViewHolder(@NonNull DogViewHolder holder, int position) {
 
-        ImageView imageView = holder.itemView.findViewById(R.id.dog_image);
+        ImageView imageView = holder.itemView.findViewById(R.id.item_image);
         TextView name = holder.itemView.findViewById(R.id.name);
         TextView lifespan = holder.itemView.findViewById(R.id.lifespan);
 
         //populate the views
         name.setText(dogList.get(position).dogBreed);
         lifespan.setText(dogList.get(position).lifeSpan);
+        Util.loadImage(imageView,dogList.get(position).imageUrl,Util.getCircularProgressDrawable(imageView.getContext()));
 
     }
 
