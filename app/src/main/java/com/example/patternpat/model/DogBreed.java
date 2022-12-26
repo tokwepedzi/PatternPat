@@ -1,10 +1,12 @@
 package com.example.patternpat.model;
 
 import androidx.room.ColumnInfo;
+import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
 
+@Entity
 public class DogBreed {
     @ColumnInfo(name = "bree_id")
     @SerializedName("id")
