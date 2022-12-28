@@ -12,10 +12,13 @@ import com.example.patternpat.model.DogBreed;
 import com.example.patternpat.model.DogDao;
 import com.example.patternpat.model.DogDatabase;
 import com.example.patternpat.model.DogsApiService;
+import com.example.patternpat.util.NotificationsHelper;
 import com.example.patternpat.util.SharedPreferencesHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -35,32 +38,27 @@ public class ListViewModel extends AndroidViewModel {
     private AsyncTask<List<DogBreed>, Void, List<DogBreed>> insertTask;
     private AsyncTask<Void, Void, List<DogBreed>> retrieveTask;
     private SharedPreferencesHelper preferencesHelper = SharedPreferencesHelper.getInstance(getApplication());
-    private long refreshTime = 5*60*1000*1000L;
+    private long refreshTime = 5 * 60 * 1000 * 1000 * 1000L;
 
     public ListViewModel(@NonNull Application application) {
         super(application);
     }
 
     public void refresh() {
-        //Mock data
-       /* DogBreed dogBreed = new DogBreed("1", "corgi", "15 years", "", "", "", "");
-        DogBreed dogBreed1 = new DogBreed("2", "horgi", "10 years", "", "", "", "");
-        DogBreed dogBreed2 = new DogBreed("3", "morgi", "11 years", "", "", "", "");
-        DogBreed dogBreed3 = new DogBreed("4", "porgi", "8 years", "", "", "", "");
-        DogBreed dogBreed4 = new DogBreed("5", "torgi", "4 years", "", "", "", "");
-        ArrayList<DogBreed> dogBreeds = new ArrayList<>();
-        dogBreeds.add(dogBreed);
-        dogBreeds.add(dogBreed1);
-        dogBreeds.add(dogBreed2);
-        dogBreeds.add(dogBreed3);
-        dogBreeds.add(dogBreed4);
+        long updateTime = preferencesHelper.getUpdateTime();
+        long currentTime = System.nanoTime();
 
-        dogs.setValue(dogBreeds);
-        dogLoadError.setValue(false);
-        loading.setValue(false);*/
+        if (updateTime != 0 && currentTime - updateTime < refreshTime) {
+            fetchFromDatabase();
+        } else {
 
-       // fetchFromRemote();
-        fetchFromDatabase();
+            fetchFromRemote();
+        }
+
+    }
+
+    public void refreshByPassCache() {
+        fetchFromRemote();
 
     }
 
@@ -77,7 +75,9 @@ public class ListViewModel extends AndroidViewModel {
                             public void onSuccess(List<DogBreed> dogBreeds) {
                                 insertTask = new InsertDogsTask();
                                 insertTask.execute(dogBreeds);
+
                                 Toast.makeText(getApplication(), "Dogs retrieved from endpoint", Toast.LENGTH_SHORT).show();
+                                NotificationsHelper.getInstance(getApplication()).createNotification();
                             }
 
                             @Override
@@ -91,11 +91,17 @@ public class ListViewModel extends AndroidViewModel {
         );
     }
 
-    private void fetchFromDatabase(){
+    private void executeUsingExecutorService(List<DogBreed> dogBreeds) {
+
+
+    }
+
+    private void fetchFromDatabase() {
         loading.setValue(true);
         retrieveTask = new RetrieveDogTask();
         retrieveTask.execute();
     }
+
     private void dogsRetrieved(List<DogBreed> dogBreedList) {
         dogs.setValue(dogBreedList);
         dogLoadError.setValue(false);
@@ -107,17 +113,19 @@ public class ListViewModel extends AndroidViewModel {
         //Create disposables and clear to avoid memory leaks  VERY IMPORTANT
         super.onCleared();
         compositeDisposable.clear();
-        if(insertTask != null){
+        if (insertTask != null) {
             insertTask.cancel(true);
             insertTask = null;
         }
 
-        if(retrieveTask !=null){
+        if (retrieveTask != null) {
             retrieveTask.cancel(true);
             retrieveTask = null;
         }
     }
 
+
+    //todo AsyncTask is deprecated, replace with ExecutorService
     private class InsertDogsTask extends AsyncTask<List<DogBreed>, Void, List<DogBreed>> {
         @Override
         protected List<DogBreed> doInBackground(List<DogBreed>... lists) {
@@ -141,10 +149,11 @@ public class ListViewModel extends AndroidViewModel {
         @Override
         protected void onPostExecute(List<DogBreed> dogBreedList) {
             dogsRetrieved(dogBreedList);
+            preferencesHelper.saveUpdateTime(System.nanoTime());
         }
     }
 
-    private class RetrieveDogTask extends AsyncTask<Void,Void,List<DogBreed>>{
+    private class RetrieveDogTask extends AsyncTask<Void, Void, List<DogBreed>> {
 
         @Override
         protected List<DogBreed> doInBackground(Void... voids) {

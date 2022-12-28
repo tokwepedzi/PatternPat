@@ -4,14 +4,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.patternpat.R;
 import com.example.patternpat.model.DogBreed;
 import com.example.patternpat.util.Util;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,11 +47,20 @@ public class DogsListAdapter extends RecyclerView.Adapter<DogsListAdapter.DogVie
         ImageView imageView = holder.itemView.findViewById(R.id.item_image);
         TextView name = holder.itemView.findViewById(R.id.name);
         TextView lifespan = holder.itemView.findViewById(R.id.lifespan);
+        LinearLayout linearLayout = holder.itemView.findViewById(R.id.item_dog_linear_layoutvw);
 
         //populate the views
         name.setText(dogList.get(position).dogBreed);
         lifespan.setText(dogList.get(position).lifeSpan);
         Util.loadImage(imageView,dogList.get(position).imageUrl,Util.getCircularProgressDrawable(imageView.getContext()));
+
+        //Listen for Item clicks
+        linearLayout.setOnClickListener(view -> {
+            ListFragmentDirections.ActionDetail action = ListFragmentDirections.actionDetail();
+            action.setDogUid(dogList.get(position).uuid);
+            Navigation.findNavController(linearLayout).navigate(action);
+
+        });
 
     }
 

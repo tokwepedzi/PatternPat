@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.patternpat"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -37,9 +37,9 @@ def supportVersion = '28.0.0'
 def retrofitVersion = '2.3.0'
 def glideVersion = '4.9.0'
 def rxJavaVersion = '2.1.1'
-def roomVersion = '2.1.0-rc01'
-def navVersion = '2.1.0-alpha05'
-def preferencesVersion = '1.0.0'
+def roomVersion = '2.5.0-rc01'
+def navVersion = '2.6.0-alpha04'
+def preferencesVersion = '1.2.0'
 
 dependencies {
 
@@ -76,7 +76,7 @@ dependencies {
 
     implementation "androidx.preference:preference:$preferencesVersion"
 
-    implementation "com.google.firebase:firebase-core:16.0.8"
+    implementation "com.google.firebase:firebase-core:21.1.1"
 
     implementation "com.android.support:multidex:1.0.3"
 
@@ -84,4 +84,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+
+  //  implementation 'androidx.work:work-runtime:2.7.0-alpha05'
+    implementation 'androidx.work:work-runtime:2.7.1'
 }

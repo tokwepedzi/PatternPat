@@ -79,6 +79,15 @@ public class ListFragment extends Fragment {
         dogListRecyclerView.setAdapter(dogsListAdapter);
 
         observeViewModel();
+
+        //Force refresh and pull data from endpoint, bypassing the cache
+        refreshLayout.setOnRefreshListener(() -> {
+            dogListRecyclerView.setVisibility(View.GONE);
+            listError.setVisibility(View.GONE);
+            loadingView.setVisibility(View.VISIBLE);
+            viewModel.refreshByPassCache();
+            refreshLayout.setRefreshing(false);
+        });
     }
 
     private void observeViewModel() {
@@ -104,6 +113,8 @@ public class ListFragment extends Fragment {
                 }
             }
         });
+
+
     }
 
 
