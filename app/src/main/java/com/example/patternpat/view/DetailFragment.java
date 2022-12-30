@@ -1,5 +1,7 @@
 package com.example.patternpat.view;
 
+import static com.example.patternpat.R.menu.detail_menu;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,10 +14,14 @@ import androidx.navigation.Navigation;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.patternpat.R;
 import com.example.patternpat.model.DogBreed;
@@ -31,6 +37,7 @@ public class DetailFragment extends Fragment {
 
     private int dogUid;
     private DetailViewModel detailViewModel;
+    private Boolean sendSmsStarted = false;
 
 
     @BindView(R.id.dog_image)
@@ -59,6 +66,7 @@ public class DetailFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, view);
+        setHasOptionsMenu(true);
         return view;
     }
 
@@ -84,10 +92,39 @@ public class DetailFragment extends Fragment {
                 dogTemperament.setText(dogBreed.temperament);
                 dogLifeSpan.setText(dogBreed.lifeSpan);
 
-                if(dogBreed.imageUrl != null){
-                    Util.loadImage(dogImage,dogBreed.imageUrl,new CircularProgressDrawable(getContext()));
+                if (dogBreed.imageUrl != null) {
+                    Util.loadImage(dogImage, dogBreed.imageUrl, new CircularProgressDrawable(getContext()));
                 }
             }
         });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(detail_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_send_sms: {
+                if (!sendSmsStarted) {
+                    sendSmsStarted = true;
+                    ((MainActivity) getActivity()).checkSmsPermission();
+                    Toast.makeText(getContext(), "Action Send SMS", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
+            case R.id.action_share: {
+                Toast.makeText(getContext(), "Action Share", Toast.LENGTH_SHORT).show();
+                break;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onPermissionResult(Boolean permissionGranted) {
+        sendSmsStarted = false;
     }
 }

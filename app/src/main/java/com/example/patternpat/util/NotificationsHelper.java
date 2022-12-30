@@ -39,8 +39,8 @@ public class NotificationsHelper {
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK );
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,PendingIntent.FLAG_MUTABLE);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,0);
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.dog_icon_rsc);
 
         Notification notification = new NotificationCompat.Builder(context,CHANNEL_ID)
